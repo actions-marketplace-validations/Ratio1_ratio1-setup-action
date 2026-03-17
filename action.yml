@@ -108,6 +108,9 @@ runs:
           shell: bash
           run: |
               set -euo pipefail
-              echo "Executing command: ${{ inputs.command }}"
-              eval "${{ inputs.command }}"
+              echo "Executing command from generated script..."
+              cat > /tmp/ratio1_action_cmd.sh <<'EOF_RATIO1_CMD'
+              ${{ inputs.command }}
+              EOF_RATIO1_CMD
+              bash -euo pipefail /tmp/ratio1_action_cmd.sh
               echo "Command execution finished."
