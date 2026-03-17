@@ -1,6 +1,9 @@
 name: Ratio1 SDK Setup
 description: Setup Ratio1 SDK environment (SDK install, network/alias, optional key).
 author: Ratio1
+branding:
+    icon: arrow-up-circle
+    color: blue
 
 inputs:
     python_version:
