@@ -1,0 +1,23 @@
+name: Deploy with ratio1-setup-action
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Ratio1
+              uses: ratio1/ratio1-setup-action@v1
+              with:
+                  sdk_version: "3.5.13"
+                  network: mainnet
+                  alias: test-sdk
+                  private_key_pem: ${{ secrets.RATIO1_PRIVATE_KEY_PEM }}
+                  command: python3 example_script.py
+              env:
+                  RATIO1_NODE: ${{ secrets.RATIO1_NODE }}

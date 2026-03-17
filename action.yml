@@ -1,0 +1,113 @@
+name: Ratio1 SDK Setup
+description: Setup Ratio1 SDK environment (SDK install, network/alias, optional key).
+author: Ratio1
+
+inputs:
+    python_version:
+        description: Python version used for setup.
+        required: false
+        default: "3.11"
+    sdk_version:
+        description: ratio1 SDK version to install. If empty, installs latest ratio1.
+        required: false
+        default: ""
+    extra_pip_packages:
+        description: Extra pip packages to install (space-separated).
+        required: false
+        default: ""
+    network:
+        description: "Ratio1 network. Allowed values: mainnet, testnet, devnet."
+        required: false
+        default: "testnet"
+    alias:
+        description: SDK alias (`EE_SDK_ALIAS`).
+        required: false
+        default: ""
+    private_key_pem:
+        description: PEM content to write to ~/.ratio1/_naeural.pem. If empty, no key file is written.
+        required: false
+        default: ""
+    command:
+        description: Optional shell command to execute after setup.
+        required: false
+        default: ""
+
+runs:
+    using: composite
+    steps:
+        - name: Set up Python
+          uses: actions/setup-python@v5
+          with:
+              python-version: ${{ inputs.python_version }}
+
+        - name: Install ratio1 SDK
+          shell: bash
+          run: |
+              set -euo pipefail
+              echo "Upgrading pip..."
+              python -m pip install --upgrade pip
+
+              sdk_version="${{ inputs.sdk_version }}"
+              if [ -n "$sdk_version" ]; then
+                echo "Installing ratio1==$sdk_version ..."
+                pip install "ratio1==$sdk_version"
+              else
+                echo "Installing latest ratio1 ..."
+                pip install ratio1
+              fi
+
+              extra_packages="${{ inputs.extra_pip_packages }}"
+              if [ -n "$extra_packages" ]; then
+                echo "Installing extra packages: $extra_packages"
+                pip install $extra_packages
+              fi
+              echo "ratio1 SDK installation complete."
+
+        - name: Configure Ratio1
+          shell: bash
+          run: |
+              set -euo pipefail
+
+              echo "Resetting Ratio1 config..."
+              r1ctl config reset
+
+              network_name="${{ inputs.network }}"
+              echo "Configuring network: $network_name"
+              case "$network_name" in
+                mainnet|testnet|devnet) ;;
+                *)
+                  echo "Invalid network: $network_name. Allowed: mainnet, testnet, devnet"
+                  exit 1
+                  ;;
+              esac
+              r1ctl config network --set "$network_name"
+
+              alias_name="${{ inputs.alias }}"
+              if [ -n "$alias_name" ]; then
+                echo "Configuring alias: $alias_name"
+                r1ctl config alias --set "$alias_name"
+              else
+                echo "No alias provided; skipping alias configuration."
+              fi
+              echo "Ratio1 configuration complete."
+
+        - name: Write private key
+          if: ${{ inputs.private_key_pem != '' }}
+          shell: bash
+          run: |
+              set -euo pipefail
+              key_path="$HOME/.ratio1/_naeural.pem"
+              echo "Writing private key to $key_path"
+              mkdir -p "$(dirname "$key_path")"
+              printf '%s' "${{ inputs.private_key_pem }}" > "$key_path"
+              chmod 600 "$key_path"
+              echo "Private key written and permissions set to 600."
+
+        - name: Execute command
+          if: ${{ inputs.command != '' }}
+          shell: bash
+          run: |
+              set -euo pipefail
+              echo "Executing command: ${{ inputs.command }}"
+              eval "${{ inputs.command }}"
+              echo "Command execution finished."
