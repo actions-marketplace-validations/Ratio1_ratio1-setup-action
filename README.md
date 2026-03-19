@@ -14,7 +14,7 @@ What it does:
 This action is designed to be published and reused as:
 
 ```yaml
-uses: ratio1/ratio1-setup-action@v1
+uses: Ratio1/ratio1-setup-action@v1
 ```
 
 ## Inputs
@@ -45,7 +45,7 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - uses: ratio1/ratio1-setup-action@v1
+            - uses: Ratio1/ratio1-setup-action@v1
               with:
                   sdk_version: "3.5.13"
                   network: testnet
@@ -58,7 +58,7 @@ jobs:
 ## With Private Key
 
 ```yaml
-- uses: ratio1/ratio1-setup-action@v1
+- uses: Ratio1/ratio1-setup-action@v1
   with:
       network: mainnet
       private_key_pem: ${{ secrets.RATIO1_PRIVATE_KEY_PEM }}

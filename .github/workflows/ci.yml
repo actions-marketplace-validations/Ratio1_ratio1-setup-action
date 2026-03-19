@@ -16,6 +16,7 @@ jobs:
         run: |
           ruby -e "require 'yaml'; YAML.load_file('action.yml'); puts 'action.yml OK'"
           ruby -e "require 'yaml'; YAML.load_file('.github/workflows/ci.yml'); puts 'ci.yml OK'"
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/move-major-tag.yml'); puts 'move-major-tag.yml OK'"
           ruby -e "require 'yaml'; YAML.load_file('examples/consumer-workflow.yml'); puts 'example workflow OK'"
 
       - name: Validate action contract
